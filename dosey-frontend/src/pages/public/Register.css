@@ -1,0 +1,233 @@
+/* --- Root Colors for Consistency --- */
+:root {
+  --olive-primary: #708238;
+  --olive-dark: #4B5320;
+  --olive-bg: #F2F4EF;
+  --white: #ffffff;
+  --input-gray: #f9f9f7;
+}
+
+.register-page {
+  min-height: 100vh;
+  background-color: var(--olive-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.register-container {
+  background: var(--white);
+  width: 100%;
+  max-width: 950px;
+  display: flex;
+  border-radius: 30px; /* High-end rounded look */
+  box-shadow: 0 20px 60px rgba(75, 83, 32, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(112, 130, 56, 0.1);
+}
+
+/* --- Left Side (The Visual Brand) --- */
+.register-info {
+  flex: 1;
+  background-color: var(--olive-primary);
+  padding: 60px 40px;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.register-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.brand-icon {
+  width: 32px;
+  height: auto;
+  /* If your logo has a background, this helps it blend into the brand color */
+  mix-blend-mode: luminosity; 
+}
+
+.register-mascot {
+  width: 180px;
+  height: auto;
+  margin-bottom: 25px;
+  /* Soft floating animation for extra "uni-project" points */
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.register-info h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.register-info p {
+  opacity: 0.9;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* --- Right Side (The Clean Form) --- */
+.register-form-section {
+  flex: 1.2;
+  padding: 60px;
+  background: var(--white);
+}
+
+.form-header h1 {
+  color: var(--olive-dark);
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.form-header p {
+  color: #777;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+}
+
+.input-group {
+  margin-bottom: 25px;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 700;
+  color: var(--olive-dark);
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid #edf0e9;
+  background-color: var(--input-gray);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--olive-primary);
+  background-color: var(--white);
+  box-shadow: 0 5px 15px rgba(112, 130, 56, 0.05);
+}
+
+.btn-register {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--olive-primary);
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-register:hover {
+  background-color: var(--olive-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(75, 83, 32, 0.2);
+}
+
+.login-prompt {
+  margin-top: 30px;
+  color: #666;
+  text-align: center;
+}
+
+.login-prompt a {
+  color: var(--olive-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.login-prompt a:hover {
+  text-decoration: underline;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 850px) {
+  .register-container {
+    flex-direction: column;
+    max-width: 450px;
+  }
+  .register-info {
+    padding: 40px;
+  }
+}
+.password-wrapper{
+  position: relative;
+}
+.eye-btn {
+  position: absolute;
+  right: 5px;
+  top: 25%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #708238; 
+  transition: all 0.2s ease;
+  padding: 5px;
+}
+
+.eye-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.eye-btn svg {
+  display: block; 
+}
+
+/* --- Validation Feedback --- */
+.input-error {
+  border-color: #d9534f !important; 
+  background-color: #fff8f8 !important;
+}
+
+.input-success {
+  border-color: var(--olive-primary) !important;
+  background-color: #fafffa !important;
+}
+
+.error-text {
+  color: #d9534f;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.status-icon {
+  position: absolute;
+  right: 45px; 
+  display: flex;
+  align-items: center;
+}
+
+.btn-register:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
