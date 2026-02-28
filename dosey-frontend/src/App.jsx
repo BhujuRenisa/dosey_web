@@ -13,6 +13,9 @@ import Landing from './pages/public/Landing';
 // Private Pages
 import Home from './pages/private/Home';
 import Profile from './pages/private/Profile';
+import AddMedication from './pages/private/AddMedicine';
+import HistoryPage from './pages/private/History';
+import MedicineCabinet from './pages/private/MedicineCabinet';
 
 function App() {
   return (
@@ -29,6 +32,10 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/add-medication" element={<AddMedication />} />
+          <Route path="/edit-medication/:id" element={<AddMedication />} />
+          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/medicines" element={<MedicineCabinet />} />
         </Route>
       </Routes>
     </Router>

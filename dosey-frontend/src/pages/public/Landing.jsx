@@ -1,51 +1,100 @@
-import { Link } from 'react-router-dom';
-import './Landing.css';
+import { Link } from 'react-router-dom'
 
 const Landing = () => {
   return (
-    <div className="landing-page">
-      <div className="blob-bg"></div>
-      
-      <nav className="mini-nav">
-        <span className="logo-text">DoseyCare</span>
-        <Link to="/login" className="login-link">Sign In</Link>
+    <div className="min-vh-100 bg-light d-flex flex-column">
+
+      {/* Navbar */}
+      <nav className="navbar navbar-light bg-white shadow-sm px-4">
+        <span className="navbar-brand fw-bold text-primary">
+          DoseyCare
+        </span>
+        <Link to="/login" className="btn btn-outline-primary">
+          Sign In
+        </Link>
       </nav>
 
-      <main className="main-hero">
-        <div className="glass-card">
-          <div className="avatar-circle">
-            <img src="/image.png" alt="image" className='pill-img'/>
-          </div>
-          <h1 className="main-title">DoseyCare</h1>
-          <p className="subtitle">Your personal medication companion.</p>
-          
-          <div className="cta-buttons">
-            <Link to="/register" className="btn-main">Start Tracking</Link>
-            <Link to="/login" className="btn-sub">View Demo</Link>
-          </div>
-        </div>
+      {/* Hero Section */}
+      <main className="flex-grow-1 d-flex align-items-center">
+        <div className="container text-center">
 
-        <div className="features-row">
-          <div className="f-card">
-            <img src="/Alram.jpg" alt="alramimage" className='alram-img'/>           
-             <p>Smart Reminders</p>
+          {/* Glass Card */}
+          <div className="card shadow-lg border-0 mx-auto mb-5" style={{ maxWidth: '420px' }}>
+            <div className="card-body p-4">
+
+              <img
+                src="/logo.png"
+                alt="Pill"
+                className="img-fluid mb-3"
+                style={{ maxWidth: '120px' }}
+              />
+
+              <h1 className="fw-bold text-primary">DoseyCare</h1>
+              <p className="text-muted mb-4">
+                Your personal medication companion.
+              </p>
+
+              <div className="d-flex gap-3 justify-content-center">
+                <Link to="/register" className="btn btn-primary px-4">
+                  Start Tracking
+                </Link>
+                <Link to="/login" className="btn btn-outline-primary px-4">
+                  View Demo
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="f-card">
-            <img src="/progressStatus.png" alt="alramimage" className='alram-img'/>           
-            <p>Progress Status</p>
+
+          {/* Features */}
+          <div className="row justify-content-center g-4">
+            <div className="col-md-3 col-sm-6">
+              <div className="card h-100 shadow-sm border-0 text-center">
+                <div className="card-body">
+                  <img
+                    src="/Alram.jpg"
+                    alt="Alarm"
+                    className="img-fluid mb-3"
+                    style={{ maxWidth: '70px' }}
+                  />
+                  <p className="fw-semibold mb-0">Smart Reminders</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 col-sm-6">
+              <div className="card h-100 shadow-sm border-0 text-center">
+                <div className="card-body">
+                  <img
+                    src="/progressStatus.png"
+                    alt="Progress"
+                    className="img-fluid mb-3"
+                    style={{ maxWidth: '70px' }}
+                  />
+                  <p className="fw-semibold mb-0">Progress Status</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 col-sm-6">
+              <div className="card h-100 shadow-sm border-0 text-center">
+                <div className="card-body">
+                  <img
+                    src="/lock.png"
+                    alt="Privacy"
+                    className="img-fluid mb-3"
+                    style={{ maxWidth: '70px' }}
+                  />
+                  <p className="fw-semibold mb-0">Data Privacy</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="f-card">
-            <img src="/lock.png" alt="alramimage" className='alram-img'/>           
-            <p>Data Privacy</p>
-          </div>
+
         </div>
       </main>
 
-      {/* <footer className="uni-footer">
-        <p>Built with ❤️ for Software Engineering 101</p>
-      </footer> */}
     </div>
-  );
-};
+  )
+}
 
-export default Landing;
+export default Landing

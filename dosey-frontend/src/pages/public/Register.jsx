@@ -1,152 +1,181 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
-import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
-import toast, { Toaster } from 'react-hot-toast'; 
-import './Register.css';
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react'
+import toast, { Toaster } from 'react-hot-toast'
 
 const Register = () => {
-  const navigate = useNavigate(); // Initialize navigate
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [loading, setLoading] = useState(false) // Added loading state
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
-  });
+    confirmPassword: '',
+  })
 
-  const isPasswordTooShort = formData.password.length > 0 && formData.password.length < 6;
-  const isMatch = formData.password === formData.confirmPassword && formData.password.length > 0;
+  const isPasswordTooShort =
+    formData.password.length > 0 && formData.password.length < 6
+  const isMatch =
+    formData.password === formData.confirmPassword &&
+    formData.password.length > 0
 
-  const handleRegister = (e) => {
-    e.preventDefault();
+  // ✅ Added 'async' keyword here
+  const handleRegister = async (e) => {
+    e.preventDefault()
 
-    // 1. Validation Checks
-    if (!formData.fullName || !formData.email) {
-      toast.error('Please fill in all fields');
-      return;
+    // 1. Validation
+    if (!formData.fullName || !formData.email || !formData.password) {
+      toast.error('Please fill in all fields')
+      return
     }
 
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
+      toast.error('Password must be at least 6 characters')
+      return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
+      toast.error('Passwords do not match')
+      return
     }
 
-    // 2. Success Logic
-    toast.success('Welcome to DoseyCare! Redirecting to login...', {
-      duration: 2000,
-      style: {
-        borderRadius: '12px',
-        background: '#4B5320',
-        color: '#fff',
-      },
-    });
+    setLoading(true) // Start loading
 
-    // 3. Delayed Redirect
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
-  };
+    try {
+      // 2. Call the Backend
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.message || 'Registration failed')
+        return
+      }
+
+      // 3. Success
+      toast.success('Welcome to DoseyCare! Redirecting to login...', {
+        duration: 2000,
+      })
+
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (error) {
+      // ✅ Added missing catch block
+      console.error("Register Error:", error)
+      toast.error('Server connection failed. Is the backend running?')
+    } finally {
+      setLoading(false) // Stop loading
+    }
+  }
 
   return (
-    <div className="register-page">
+    <div className="container-fluid vh-100 d-flex align-items-center bg-light">
       <Toaster position="top-center" />
-      
-      <div className="register-container">
-        {/* Left Side: Branding */}
-        <div className="register-info">
-          <div className="register-brand">
-            <img src="/logo.png" alt="Logo" className="brand-icon" />
-            <span>DoseyCare</span>
-          </div>
-          <div className="mascot-section">
-            <img src="/logo.png" alt="Mascot" className="register-mascot" />
-            <h2>Join the family!</h2>
-            <p>Start managing your health with a smile today.</p>
-          </div>
-        </div>
 
-        {/* Right Side: Form */}
-        <div className="register-form-section">
-          <div className="form-header">
-            <h1>Create Account</h1>
-            <p>Step into a healthier routine.</p>
+      <div className="container">
+        <div className="row shadow-lg rounded overflow-hidden bg-white mx-auto" style={{ maxWidth: '900px' }}>
+
+          {/* Left Branding */}
+          <div className="col-md-5 bg-primary text-white p-5 d-none d-md-flex flex-column justify-content-center text-center">
+            <h2 className="fw-bold mb-3">DoseyCare</h2>
+            <p className="lead">Join the family and manage your health with ease.</p>
+            <img src="/logo.png" alt="Mascot" className="img-fluid mt-4 mx-auto" style={{ maxWidth: '150px' }} />
           </div>
 
-          <form className="cute-form" onSubmit={handleRegister}>
-            <div className="input-group">
-              <label>Full Name</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Lily" 
-                className="standard-input"
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-              />
-            </div>
+          {/* Right Form */}
+          <div className="col-md-7 p-5">
+            <h3 className="fw-bold mb-2">Create Account</h3>
+            <p className="text-muted mb-4">Step into a healthier routine.</p>
 
-            <div className="input-group">
-              <label>Email Address</label>
-              <input 
-                type="email" 
-                placeholder="name@example.com" 
-                className="standard-input"
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
-            </div>
-
-            <div className="input-group">
-              <label>Password</label>
-              <div className="password-wrapper">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••" 
-                  className={isPasswordTooShort ? 'input-error' : ''}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+            <form onSubmit={handleRegister}>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Full Name</label>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  placeholder="e.g. Lily"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 />
-                <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
               </div>
-              {isPasswordTooShort && <p className="error-text">Min. 6 characters required</p>}
-            </div>
 
-            <div className="input-group">
-              <label>Confirm Password</label>
-              <div className="password-wrapper">
-                <input 
-                  type={showConfirm ? "text" : "password"} 
-                  placeholder="••••••••" 
-                  className={formData.confirmPassword.length > 0 && !isMatch ? 'input-error' : isMatch ? 'input-success' : ''}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Email Address</label>
+                <input
+                  type="email"
+                  className="form-control bg-light"
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                <button type="button" className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
-                  {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-                <div className="status-icon">
-                  {isMatch ? <CheckCircle2 size={18} color="#708238" /> : 
-                   (formData.confirmPassword.length > 0 && !isMatch) ? <AlertCircle size={18} color="#d9534f" /> : null}
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Password</label>
+                <div className="input-group">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className={`form-control bg-light ${isPasswordTooShort ? 'is-invalid' : ''}`}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {isPasswordTooShort && <div className="invalid-feedback d-block">Minimum 6 characters required</div>}
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label fw-semibold">Confirm Password</label>
+                <div className="input-group">
+                  <input
+                    type={showConfirm ? 'text' : 'password'}
+                    className={`form-control bg-light ${formData.confirmPassword.length > 0 && !isMatch ? 'is-invalid' : isMatch ? 'is-valid' : ''}`}
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                  >
+                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
-            </div>
 
-            <button type="submit" className="btn-register">
-              Create Account →
-            </button>
-          </form>
+              <button className="btn btn-primary w-100 py-2 text-white fw-bold shadow-sm" disabled={loading}>
+                {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : 'Create Account →'}
+              </button>
+            </form>
 
-          <p className="login-prompt">
-            Already have an account? <Link to="/login">Sign In</Link>
-          </p>
+            <p className="text-center mt-4 mb-0">
+              Already have an account? <Link to="/login" className="fw-semibold text-primary text-decoration-none">Sign In</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root {
+  --olive-primary: #708238;
+  --olive-dark: #4B5320;
+  --olive-light: #F2F4EF;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+}
+
+.brand-color {
+  color: var(--olive-primary) !important;
+}
+
+.text-olive-dark {
+  color: var(--olive-dark);
+}
+
+.bg-olive-light {
+  background-color: var(--olive-light);
+}
+
+.text-olive {
+  color: var(--olive-primary);
+}
+
+/* Button Styles */
+.btn-olive {
+  background-color: var(--olive-primary);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-olive:hover {
+  background-color: var(--olive-dark);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline-olive {
+  border: 2px solid var(--olive-primary);
+  color: var(--olive-primary);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.btn-outline-olive:hover {
+  background-color: var(--olive-primary);
+  color: white;
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 90vh;
+  background-color: white;
+  padding-top: 80px;
+}
+
+.hero-mascot {
+  max-width: 350px;
+  animation: float 5s ease-in-out infinite;
+  filter: drop-shadow(0 20px 30px rgba(112, 130, 56, 0.2));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Feature Cards */
+.feature-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #eee;
+  transition: 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+  border-color: var(--olive-primary);
+}
+
+.icon-box {
+  width: 70px;
+  height: 70px;
+  background-color: var(--olive-light);
+  color: var(--olive-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+}
+
+/* Navbar shadow on scroll */
+.navbar {
+  border-bottom: 1px solid #f2f2f2;
+}
