@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { User, Mail, Phone, Calendar, Bell, Shield, Monitor, Trash2, Save, LogOut, X, Heart, Droplet, AlertCircle, Edit2, Package, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '../../components/Navbar';
+import api from '../../utils/api';
 import './Home.css';
 
 const Profile = () => {
@@ -63,11 +63,7 @@ const Profile = () => {
 
   const fetchMedicines = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const res = await axios.get('http://localhost:5000/api/medicines', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/medicines');
       setMedicines(res.data);
     } catch (err) {
       console.error('Error fetching medicines:', err);
@@ -107,10 +103,7 @@ const Profile = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      await axios.delete('http://localhost:5000/api/auth/delete-account', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete('/auth/delete-account');
 
       localStorage.removeItem('token');
       localStorage.removeItem('user');

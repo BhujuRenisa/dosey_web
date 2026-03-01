@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pill, Pencil, Trash2, Save, X, History, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../../utils/api';
 import './Home.css';
 
 const HistoryPage = () => {
@@ -19,11 +20,8 @@ const HistoryPage = () => {
     const fetchHistory = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:5000/api/history', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (Array.isArray(data)) setHistory(data);
+            const res = await api.get('/history');
+            if (Array.isArray(res.data)) setHistory(res.data);
         } catch (err) {
             console.error(err);
             toast.error('Failed to load history');
@@ -42,11 +40,8 @@ const HistoryPage = () => {
     const handleDelete = async (id) => {
         setDeletingId(id);
         try {
-            const res = await fetch(`http://localhost:5000/api/history/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
+            const res = await api.delete(`/history/${id}`);
+            if (res.status === 200) {
                 toast.success('History entry deleted', {
                     style: { borderRadius: '12px', background: '#708238', color: '#fff' },
                 });
@@ -80,13 +75,9 @@ const HistoryPage = () => {
         }
         setSavingId(id);
         try {
-            const res = await fetch(`http://localhost:5000/api/history/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify(editForm),
-            });
-            if (res.ok) {
-                const updated = await res.json();
+            const res = await api.put(`/history/${id}`, editForm);
+            if (res.status === 200) {
+                const updated = res.data;
                 setHistory((prev) => prev.map((h) => (h.id === id ? updated : h)));
                 toast.success('Entry updated!', {
                     style: { borderRadius: '12px', background: '#708238', color: '#fff' },

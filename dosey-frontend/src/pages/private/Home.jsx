@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Plus, Flame, Target, Clock, AlertCircle, ChevronRight, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '../../components/Navbar';
+import api from '../../utils/api';
 import './Home.css';
 
 const TIPS = [
@@ -34,13 +35,11 @@ const Home = () => {
     const fetchAll = async () => {
       try {
         const [medRes, histRes] = await Promise.all([
-          fetch('http://localhost:5000/api/medicines', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('http://localhost:5000/api/history', { headers: { Authorization: `Bearer ${token}` } }),
+          api.get('/medicines'),
+          api.get('/history'),
         ]);
-        const meds = await medRes.json();
-        const hist = await histRes.json();
-        if (Array.isArray(meds)) setMedicines(meds);
-        if (Array.isArray(hist)) setHistory(hist);
+        if (Array.isArray(medRes.data)) setMedicines(medRes.data);
+        if (Array.isArray(histRes.data)) setHistory(histRes.data);
       } catch (err) { console.error(err); }
     };
     fetchAll();
@@ -52,14 +51,16 @@ const Home = () => {
       const token = localStorage.getItem('token');
       const today = new Date().toISOString().split('T')[0];
       const nowTime = new Date().toTimeString().slice(0, 5);
-      const res = await fetch('http://localhost:5000/api/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ medicineName: med.name, dosage: med.dosage, frequency: med.frequency, takenAt: today, takenTime: med.time || nowTime, medicineId: med.id }),
+      const res = await api.post('/history', {
+        medicineName: med.name,
+        dosage: med.dosage,
+        frequency: med.frequency,
+        takenAt: today,
+        takenTime: med.time || nowTime,
+        medicineId: med.id
       });
-      if (res.ok) {
-        const newEntry = await res.json();
-        setHistory(prev => [newEntry, ...prev]);
+      if (res.status === 201) {
+        setHistory(prev => [res.data, ...prev]);
         toast.success(`${med.name} logged! ✅`, { style: { borderRadius: '12px', background: '#708238', color: '#fff' } });
       }
     } catch { toast.error('Something went wrong'); }

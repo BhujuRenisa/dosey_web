@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import api from '../../utils/api'
 
 const Register = () => {
   const navigate = useNavigate()
@@ -46,35 +47,26 @@ const Register = () => {
 
     try {
       // 2. Call the Backend
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
-      })
+      const res = await api.post('/auth/register', {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        toast.error(data.message || 'Registration failed')
-        return
+      if (res.status === 201) {
+        // 3. Success
+        toast.success('Welcome to DoseyCare! Redirecting to login...', {
+          duration: 2000,
+        });
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        toast.error(res.data.message || 'Registration failed');
       }
-
-      // 3. Success
-      toast.success('Welcome to DoseyCare! Redirecting to login...', {
-        duration: 2000,
-      })
-
-      setTimeout(() => navigate('/login'), 2000)
     } catch (error) {
       // ✅ Added missing catch block
-      console.error("Register Error:", error)
-      toast.error('Server connection failed. Is the backend running?')
+      console.error("Register Error:", error);
+      const msg = error.response?.data?.message || 'Server connection failed. Is the backend running?';
+      toast.error(msg);
     } finally {
       setLoading(false) // Stop loading
     }

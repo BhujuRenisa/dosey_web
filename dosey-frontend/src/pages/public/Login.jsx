@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import api from '../../utils/api'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -18,30 +19,22 @@ const Login = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email.trim(), password }),
-      })
+      const res = await api.post('/auth/login', { email: email.trim(), password });
+      const data = res.data;
 
-      const data = await res.json()
+      if (res.status === 200) {
+        // ✅ Save token & user
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
 
-      if (!res.ok) {
+        toast.success(`Welcome back, ${data.user.fullName}!`, {
+          duration: 2000,
+        })
+
+        setTimeout(() => navigate('/home'), 2000)
+      } else {
         toast.error(data.message || 'Login failed')
-        return
       }
-
-      // ✅ Save token & user
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-
-      toast.success(`Welcome back, ${data.user.fullName}!`, {
-        duration: 2000,
-      })
-
-      setTimeout(() => navigate('/home'), 2000)
     } catch (error) {
       toast.error('Server error. Please try again.')
     }

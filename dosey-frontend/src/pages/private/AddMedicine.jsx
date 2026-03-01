@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
 import { Save, ArrowLeft, Plus, X } from "lucide-react";
 import Navbar from "../../components/Navbar";
+import api from "../../utils/api";
 import "./Home.css";
 
 const COLORS = ['#708238', '#2563eb', '#dc2626', '#e08c2f', '#8b5cf6', '#06b6d4'];
@@ -48,8 +46,7 @@ const AddMedication = () => {
     if (!isEditMode) return;
     const fetchMedicine = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:5000/api/medicines`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await api.get(`/medicines`);
         const med = res.data.find(m => String(m.id) === String(id));
         if (med) {
           setForm({
@@ -86,17 +83,16 @@ const AddMedication = () => {
     if (!form.name.trim()) { setError("Medicine name is required."); return; }
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
       const payload = {
         ...form,
         specificDays: form.specificDays.join(','),
         reminderTimes: reminderTimes.filter(Boolean).join(','),
       };
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/medicines/${id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+        await api.put(`/medicines/${id}`, payload);
         setSuccess("Medicine updated successfully!");
       } else {
-        await axios.post("http://localhost:5000/api/medicines", payload, { headers: { Authorization: `Bearer ${token}` } });
+        await api.post("/medicines", payload);
         setSuccess("Medicine saved successfully!");
       }
       setTimeout(() => navigate("/medicines"), 1200);
