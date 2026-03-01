@@ -52,8 +52,8 @@ const Register = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
           password: formData.password,
         }),
       })
@@ -99,15 +99,17 @@ const Register = () => {
             <h3 className="fw-bold mb-2">Create Account</h3>
             <p className="text-muted mb-4">Step into a healthier routine.</p>
 
-            <form onSubmit={handleRegister}>
+            <form onSubmit={handleRegister} autoComplete="off">
               <div className="mb-3">
                 <label className="form-label fw-semibold">Full Name</label>
                 <input
                   type="text"
+                  name="fullName"
                   className="form-control bg-light"
                   placeholder="e.g. Lily"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  autoComplete="name-new"
                 />
               </div>
 
@@ -115,10 +117,12 @@ const Register = () => {
                 <label className="form-label fw-semibold">Email Address</label>
                 <input
                   type="email"
+                  name="email"
                   className="form-control bg-light"
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  autoComplete="email-new"
                 />
               </div>
 
@@ -127,10 +131,12 @@ const Register = () => {
                 <div className="input-group">
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    name="password"
                     className={`form-control bg-light ${isPasswordTooShort ? 'is-invalid' : ''}`}
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -148,10 +154,12 @@ const Register = () => {
                 <div className="input-group">
                   <input
                     type={showConfirm ? 'text' : 'password'}
+                    name="confirmPassword"
                     className={`form-control bg-light ${formData.confirmPassword.length > 0 && !isMatch ? 'is-invalid' : isMatch ? 'is-valid' : ''}`}
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"

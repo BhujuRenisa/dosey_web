@@ -164,7 +164,7 @@ const Home = () => {
             {statCard(<Flame size={18} style={{ color: '#e08c2f' }} />, 'Current Streak', `${streak} Days`, streak > 0 ? 'Keep it up! 🔥' : 'Start today!', '#e08c2f')}
           </div>
           <div className="col-4">
-            {statCard(<CheckCircle size={18} style={{ color: '#2563eb' }} />, 'Weekly Goal', `${Math.min(adherence + 10, 100)}%`, 'On track', '#2563eb')}
+            {statCard(<AlertCircle size={18} style={{ color: '#dc2626' }} />, 'Refills Needed', medicines.filter(m => (m.stock || 0) <= (m.refillThreshold || 5)).length, 'Check cabinet', '#dc2626')}
           </div>
         </div>
 

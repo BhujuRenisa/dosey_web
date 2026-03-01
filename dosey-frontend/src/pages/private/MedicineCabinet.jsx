@@ -143,7 +143,7 @@ const MedicineCabinet = () => {
                     {[
                         { label: 'Active Meds', value: medicines.length, color: '#708238', bg: '#e9edc9' },
                         { label: 'Active Mode', value: `${adherence}%`, color: '#2563eb', bg: '#dbeafe', sub: '↑ Adherence' },
-                        { label: 'Refills Needed', value: '2', color: '#e08c2f', bg: '#fef3c7' },
+                        { label: 'Refills Needed', value: medicines.filter(m => (m.stock || 0) <= (m.refillThreshold || 5)).length, color: '#e08c2f', bg: '#fef3c7' },
                     ].map(stat => (
                         <div key={stat.label} style={{ background: '#fff', borderRadius: '14px', padding: '1rem 1.5rem', boxShadow: '0 3px 14px rgba(112,130,56,0.08)', minWidth: '150px' }}>
                             <div style={{ fontSize: '0.72rem', color: '#8a9a5e', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>

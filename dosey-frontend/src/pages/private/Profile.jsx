@@ -100,6 +100,32 @@ const Profile = () => {
     }, 800);
   };
 
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to delete your account? This action is permanent and all your data will be lost.")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      await axios.delete('http://localhost:5000/api/auth/delete-account', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      toast.success('Account deleted successfully', {
+        style: { borderRadius: '12px', background: '#dc2626', color: '#fff' },
+      });
+      navigate('/');
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      toast.error('Failed to delete account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleNotification = (key) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -342,7 +368,14 @@ const Profile = () => {
                       <div style={{ fontWeight: '700', color: '#b91c1c', fontSize: '0.88rem' }}>Delete Account</div>
                       <div style={{ color: '#dc2626', fontSize: '0.78rem', fontWeight: '600' }}>Once you delete your account, there is no going back. Please be certain.</div>
                     </div>
-                    <button className="btn btn-sm fw-bold" style={{ background: '#dc2626', color: '#fff', borderRadius: '10px', fontSize: '0.8rem', padding: '8px 16px' }}>Delete Account</button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={loading}
+                      className="btn btn-sm fw-bold"
+                      style={{ background: '#dc2626', color: '#fff', borderRadius: '10px', fontSize: '0.8rem', padding: '8px 16px' }}
+                    >
+                      {loading ? 'Deleting...' : 'Delete Account'}
+                    </button>
                   </div>
                 </div>
               </div>

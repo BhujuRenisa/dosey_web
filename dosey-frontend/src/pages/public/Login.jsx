@@ -9,43 +9,43 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
- const handleLogin = async (e) => {
-  e.preventDefault()
+  const handleLogin = async (e) => {
+    e.preventDefault()
 
-  if (!email || !password) {
-    toast.error('Please enter both email and password')
-    return
-  }
-
-  try {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      toast.error(data.message || 'Login failed')
+    if (!email || !password) {
+      toast.error('Please enter both email and password')
       return
     }
 
-    // ✅ Save token & user
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify(data.user))
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
 
-    toast.success(`Welcome back, ${data.user.fullName}!`, {
-      duration: 2000,
-    })
+      const data = await res.json()
 
-    setTimeout(() => navigate('/home'), 2000)
-  } catch (error) {
-    toast.error('Server error. Please try again.')
+      if (!res.ok) {
+        toast.error(data.message || 'Login failed')
+        return
+      }
+
+      // ✅ Save token & user
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+
+      toast.success(`Welcome back, ${data.user.fullName}!`, {
+        duration: 2000,
+      })
+
+      setTimeout(() => navigate('/home'), 2000)
+    } catch (error) {
+      toast.error('Server error. Please try again.')
+    }
   }
-}
 
 
   return (
@@ -71,13 +71,13 @@ const Login = () => {
               className="img-fluid mt-4 mx-auto"
               style={{ maxWidth: '140px' }}
             />
-            
+
 
             <p className="lead">
               Ready to manage your health with a smile?
             </p>
 
-            
+
           </div>
 
           {/* RIGHT LOGIN FORM */}
@@ -87,7 +87,7 @@ const Login = () => {
               Enter your details to continue your routine.
             </p>
 
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleLogin} autoComplete="off">
               {/* EMAIL */}
               <div className="mb-3">
                 <label className="form-label fw-semibold">
@@ -99,10 +99,12 @@ const Login = () => {
                   </span>
                   <input
                     type="email"
+                    name="email"
                     className="form-control bg-light"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email-new"
                   />
                 </div>
               </div>
@@ -118,10 +120,12 @@ const Login = () => {
                   </span>
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    name="password"
                     className="form-control bg-light"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password-new"
                   />
                   <button
                     type="button"
