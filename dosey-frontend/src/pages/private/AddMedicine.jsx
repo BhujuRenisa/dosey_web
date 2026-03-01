@@ -31,6 +31,7 @@ const AddMedication = () => {
   const [form, setForm] = useState({
     name: "", dosage: "", unit: "mg", frequency: "Every Day",
     specificDays: [], time: "", colorTag: "#708238", shape: "circle",
+    stock: 0, refillThreshold: 5,
   });
   const [reminderTimes, setReminderTimes] = useState(['']);
   const [error, setError] = useState("");
@@ -56,6 +57,7 @@ const AddMedication = () => {
             frequency: med.frequency || "Every Day",
             specificDays: med.specificDays ? med.specificDays.split(',') : [],
             time: med.time || "", colorTag: med.colorTag || "#708238", shape: med.shape || "circle",
+            stock: med.stock || 0, refillThreshold: med.refillThreshold || 5,
           });
           setReminderTimes(med.reminderTimes ? med.reminderTimes.split(',') : ['']);
         } else setError("Medicine not found.");
@@ -237,6 +239,22 @@ const AddMedication = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stock Management */}
+          <div style={sectionStyle}>
+            <label style={labelStyle}>Stock Management</label>
+            <p style={{ color: '#8a9a5e', fontSize: '0.82rem', fontWeight: '600', marginBottom: '0.75rem' }}>Track your supply and get refill alerts.</p>
+            <div className="row g-3">
+              <div className="col-6">
+                <label style={{ ...labelStyle, textTransform: 'none', fontSize: '0.78rem', marginBottom: '8px' }}>Current Stock (Units)</label>
+                <input type="number" style={inputStyle} value={form.stock} onChange={e => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} placeholder="e.g. 30" />
+              </div>
+              <div className="col-6">
+                <label style={{ ...labelStyle, textTransform: 'none', fontSize: '0.78rem', marginBottom: '8px' }}>Refill Alert Threshold</label>
+                <input type="number" style={inputStyle} value={form.refillThreshold} onChange={e => setForm({ ...form, refillThreshold: parseInt(e.target.value) || 0 })} placeholder="e.g. 5" />
               </div>
             </div>
           </div>

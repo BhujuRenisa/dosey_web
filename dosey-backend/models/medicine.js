@@ -33,6 +33,14 @@ const Medicine = sequelize.define('Medicine', {
     type: DataTypes.STRING,
     defaultValue: 'circle',
   },
+  stock: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  refillThreshold: {
+    type: DataTypes.INTEGER,
+    defaultValue: 5,
+  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,

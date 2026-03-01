@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const MedicineHistory = require('../models/MedicineHistory');
+const Medicine = require('../models/medicine');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // All routes protected
@@ -36,6 +37,15 @@ router.post('/', async (req, res) => {
             userId: req.user.id,
             medicineId: medicineId || null,
         });
+
+        // Decrement stock if medicineId is provided
+        if (medicineId) {
+            const med = await Medicine.findOne({ where: { id: medicineId, userId: req.user.id } });
+            if (med && med.stock > 0) {
+                await med.decrement('stock');
+            }
+        }
+
         res.status(201).json(entry);
     } catch (err) {
         console.error(err);

@@ -8,9 +8,9 @@ router.use(authMiddleware);
 // ADD Medicine
 router.post('/', async (req, res) => {
   try {
-    const { name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape } = req.body;
+    const { name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape, stock, refillThreshold } = req.body;
     const medicine = await Medicine.create({
-      name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape,
+      name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape, stock, refillThreshold,
       userId: req.user.id,
     });
     res.status(201).json(medicine);
@@ -35,8 +35,8 @@ router.put('/:id', async (req, res) => {
   try {
     const medicine = await Medicine.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!medicine) return res.status(404).json({ message: 'Medicine not found' });
-    const { name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape } = req.body;
-    await medicine.update({ name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape });
+    const { name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape, stock, refillThreshold } = req.body;
+    await medicine.update({ name, dosage, unit, frequency, specificDays, time, reminderTimes, colorTag, shape, stock, refillThreshold });
     res.json(medicine);
   } catch (err) {
     console.error(err);
