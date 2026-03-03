@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Save, ArrowLeft, Plus, X } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import api from "../../utils/api";
@@ -46,8 +48,8 @@ const AddMedication = () => {
     if (!isEditMode) return;
     const fetchMedicine = async () => {
       try {
-        const res = await api.get(`/medicines`);
-        const med = res.data.find(m => String(m.id) === String(id));
+        const res = await api.get(`/medicines/${id}`);
+        const med = res.data;
         if (med) {
           setForm({
             name: med.name || "", dosage: med.dosage || "", unit: med.unit || "mg",
@@ -58,7 +60,9 @@ const AddMedication = () => {
           });
           setReminderTimes(med.reminderTimes ? med.reminderTimes.split(',') : ['']);
         } else setError("Medicine not found.");
-      } catch { setError("Failed to load medicine data."); }
+      } catch (err) {
+        setError(err.response?.status === 404 ? "Medicine not found." : "Failed to load medicine data.");
+      }
       finally { setFetchingData(false); }
     };
     fetchMedicine();

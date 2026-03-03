@@ -24,8 +24,10 @@ router.get('/', async (req, res) => {
 // POST — mark a medicine as taken
 router.post('/', async (req, res) => {
     try {
-        const { medicineName, dosage, frequency, takenAt, takenTime, notes, medicineId } = req.body;
-        if (!medicineName) return res.status(400).json({ message: 'Medicine name is required' });
+        const { medicineName, dosage, takenAt, takenTime, medicineId } = req.body;
+        if (!medicineName || !dosage) {
+            return res.status(400).json({ message: 'Medicine name and dosage are required' });
+        }
 
         const entry = await MedicineHistory.create({
             medicineName,

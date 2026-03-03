@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/contacts', require('./routes/contact'));
 
 // Sync Database and Start Server
 const PORT = process.env.PORT || 5000;

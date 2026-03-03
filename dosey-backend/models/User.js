@@ -16,6 +16,34 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  dob: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+  },
+  bloodType: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  emergencyContact: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  allergies: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordExpires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 });
 
 module.exports = User;

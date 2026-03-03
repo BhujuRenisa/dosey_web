@@ -30,6 +30,17 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET Medicine by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const medicine = await Medicine.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!medicine) return res.status(404).json({ message: 'Medicine not found' });
+    res.json(medicine);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching medicine' });
+  }
+});
+
 // UPDATE Medicine by ID
 router.put('/:id', async (req, res) => {
   try {

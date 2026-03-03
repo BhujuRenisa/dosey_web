@@ -88,3 +88,108 @@ exports.deleteAccount = async (req, res) => {
     res.status(500).json({ message: 'Server error during account deletion' });
   }
 };
+
+// GET USER PROFILE
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
+    });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching profile' });
+  }
+};
+
+// UPDATE USER PROFILE
+exports.updateProfile = async (req, res) => {
+  try {
+    const { fullName, phone, dob, bloodType, emergencyContact, allergies } = req.body;
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await user.update({
+      fullName: fullName || user.fullName,
+      phone: phone !== undefined ? phone : user.phone,
+      dob: dob !== undefined ? dob : user.dob,
+      bloodType: bloodType !== undefined ? bloodType : user.bloodType,
+      emergencyContact: emergencyContact !== undefined ? emergencyContact : user.emergencyContact,
+      allergies: allergies !== undefined ? allergies : user.allergies,
+    });
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        dob: user.dob,
+        bloodType: user.bloodType,
+        emergencyContact: user.emergencyContact,
+        allergies: user.allergies
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+};
+
+// FORGOT PASSWORD
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'User with this email does not exist' });
+
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(20).toString('hex');
+    const expires = Date.now() + 3600000; // 1 hour
+
+    await user.update({
+      resetPasswordToken: token,
+      resetPasswordExpires: expires
+    });
+
+    // In a real app, send an email. Here we return the token/link for simulation.
+    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    res.json({
+      message: 'Reset link generated (Simulated)',
+      resetUrl,
+      token
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Error during forgot password process' });
+  }
+};
+
+// RESET PASSWORD
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    const { Op } = require('sequelize');
+
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: Date.now() }
+      }
+    });
+
+    if (!user) return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await user.update({
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpires: null
+    });
+
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+};

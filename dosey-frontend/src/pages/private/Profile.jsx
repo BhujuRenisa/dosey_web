@@ -14,6 +14,10 @@ const Profile = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('Personal'); // 'Personal' or 'Health'
   const [medicines, setMedicines] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [editingContact, setEditingContact] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', relationship: '', phone: '', email: '' });
 
   const [form, setForm] = useState({
     firstName: '',
@@ -34,31 +38,42 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      navigate('/login');
-      return;
-    }
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const [profileRes, medRes, contactRes] = await Promise.all([
+          api.get('/auth/profile'),
+          api.get('/medicines'),
+          api.get('/contacts')
+        ]);
 
-    // Split name for form
-    const [first, ...rest] = (parsedUser.fullName || '').split(' ');
-    setForm({
-      firstName: first || '',
-      lastName: rest.join(' ') || '',
-      email: parsedUser.email || '',
-      phone: parsedUser.phone || '',
-      dob: parsedUser.dob || '',
-    });
+        const userData = profileRes.data;
+        setUser(userData);
+        setMedicines(medRes.data);
+        setContacts(contactRes.data);
 
-    setHealthForm({
-      emergencyContact: parsedUser.emergencyContact || '',
-      bloodType: parsedUser.bloodType || '',
-      allergies: parsedUser.allergies || '',
-    });
+        const [first, ...rest] = (userData.fullName || '').split(' ');
+        setForm({
+          firstName: first || '',
+          lastName: rest.join(' ') || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          dob: userData.dob || '',
+        });
 
-    fetchMedicines();
+        setHealthForm({
+          emergencyContact: userData.emergencyContact || '',
+          bloodType: userData.bloodType || '',
+          allergies: userData.allergies || '',
+        });
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        if (err.response?.status === 401) navigate('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllData();
   }, [navigate]);
 
   const fetchMedicines = async () => {
@@ -70,30 +85,66 @@ const Profile = () => {
     }
   };
 
-  const handleUpdateProfile = (e) => {
+  const handleUpdateProfile = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
-    // Simulation
-    setTimeout(() => {
-      const updatedUser = {
-        ...user,
+    try {
+      const payload = {
         fullName: `${form.firstName} ${form.lastName}`.trim(),
-        email: form.email,
         phone: form.phone,
         dob: form.dob,
-        emergencyContact: healthForm.emergencyContact,
         bloodType: healthForm.bloodType,
+        emergencyContact: healthForm.emergencyContact,
         allergies: healthForm.allergies,
       };
 
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setLoading(false);
+      const res = await api.put('/auth/profile', payload);
+      setUser(res.data.user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
       setShowModal(false);
       toast.success(`${modalType} information updated!`, {
         style: { borderRadius: '12px', background: '#708238', color: '#fff' },
       });
-    }, 800);
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      toast.error('Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (editingContact) {
+        const res = await api.put(`/contacts/${editingContact.id}`, contactForm);
+        setContacts(prev => prev.map(c => c.id === editingContact.id ? res.data : c));
+        toast.success('Contact updated!');
+      } else {
+        const res = await api.post('/contacts', contactForm);
+        setContacts(prev => [...prev, res.data]);
+        toast.success('Contact added!');
+      }
+      setShowContactModal(false);
+      setEditingContact(null);
+      setContactForm({ name: '', relationship: '', phone: '', email: '' });
+    } catch (err) {
+      toast.error('Failed to save contact');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteContact = async (id) => {
+    if (!window.confirm('Delete this contact?')) return;
+    try {
+      await api.delete(`/contacts/${id}`);
+      setContacts(prev => prev.filter(c => c.id !== id));
+      toast.success('Contact deleted');
+    } catch (err) {
+      toast.error('Failed to delete contact');
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -128,6 +179,7 @@ const Profile = () => {
   const sidebarItems = [
     { label: 'Personal Info', icon: User },
     { label: 'Health Profile', icon: Heart },
+    { label: 'Emergency Contacts', icon: Phone },
     { label: 'Refills & Stock', icon: Package },
     { label: 'Notifications', icon: Bell },
   ];
@@ -265,9 +317,65 @@ const Profile = () => {
 
                 {activeTab === 'Health Profile' && (
                   <div className="px-1">
-                    <InfoRow label="Emergency Contact" value={user.emergencyContact || 'Not set'} icon={Phone} />
+                    <InfoRow label="Emergency Contact (Legacy)" value={user.emergencyContact || 'Not set'} icon={Phone} />
                     <InfoRow label="Blood Type" value={user.bloodType || 'Not set'} icon={Droplet} />
                     <InfoRow label="Allergies" value={user.allergies || 'None listed'} icon={AlertCircle} />
+                  </div>
+                )}
+
+                {activeTab === 'Emergency Contacts' && (
+                  <div className="px-1">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <p style={{ color: '#8a9a5e', fontWeight: '600', fontSize: '0.85rem', margin: 0 }}>Manage your healthcare providers or family contacts.</p>
+                      <button
+                        onClick={() => {
+                          setEditingContact(null);
+                          setContactForm({ name: '', relationship: '', phone: '', email: '' });
+                          setShowContactModal(true);
+                        }}
+                        className="btn btn-sm"
+                        style={{ background: '#708238', color: '#fff', borderRadius: '10px', fontWeight: '700', padding: '6px 16px' }}
+                      >
+                        <Plus size={14} className="me-2" /> Add New
+                      </button>
+                    </div>
+                    {contacts.length > 0 ? (
+                      contacts.map(contact => (
+                        <div key={contact.id} className="p-3 mb-2" style={{ background: '#f7f9f3', borderRadius: '16px', border: '1.2px solid #f0f2eb' }}>
+                          <div className="d-flex justify-content-between align-items-start">
+                            <div>
+                              <div style={{ fontWeight: '800', color: '#3a4a1e', fontSize: '1rem' }}>{contact.name}</div>
+                              <div style={{ color: '#708238', fontWeight: '700', fontSize: '0.8rem', textTransform: 'uppercase' }}>{contact.relationship}</div>
+                              <div className="mt-2" style={{ color: '#4B5320', fontWeight: '600', fontSize: '0.9rem' }}><Phone size={14} className="me-1" /> {contact.phone}</div>
+                              {contact.email && <div style={{ color: '#4B5320', fontWeight: '600', fontSize: '0.9rem' }}><Mail size={14} className="me-1" /> {contact.email}</div>}
+                            </div>
+                            <div className="d-flex gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditingContact(contact);
+                                  setContactForm({ name: contact.name, relationship: contact.relationship, phone: contact.phone, email: contact.email });
+                                  setShowContactModal(true);
+                                }}
+                                style={{ background: 'none', border: 'none', color: '#708238', cursor: 'pointer' }}
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => deleteContact(contact.id)}
+                                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4" style={{ background: '#f7f9f3', borderRadius: '16px', border: '1.5px dashed #d5ddc8' }}>
+                        <Phone size={32} style={{ color: '#a3b464', marginBottom: '10px', opacity: 0.6 }} />
+                        <p style={{ color: '#8a9a5e', fontWeight: '600', fontSize: '0.85rem' }}>No contacts added yet.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -474,6 +582,67 @@ const Profile = () => {
                 <button type="button" onClick={() => setShowModal(false)} className="btn w-100" style={{ background: '#f2f4ef', color: '#708238', borderRadius: '12px', fontWeight: '700', padding: '12px' }}>Cancel</button>
                 <button type="submit" disabled={loading} className="btn w-100" style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '12px', fontWeight: '700', padding: '12px', border: 'none' }}>
                   {loading ? <span className="spinner-border spinner-border-sm"></span> : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(58, 74, 30, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+            overflow: 'hidden',
+          }}>
+            <div className="p-4 d-flex justify-content-between align-items-center" style={{ borderBottom: '1.5px solid #f2f4ef' }}>
+              <h5 style={{ fontWeight: '800', color: '#3a4a1e', margin: 0 }}>{editingContact ? 'Edit Contact' : 'Add New Contact'}</h5>
+              <button onClick={() => setShowContactModal(false)} style={{ background: 'transparent', border: 'none', color: '#8a9a5e' }}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleContactSubmit} className="p-4">
+              <div className="row g-3">
+                <div className="col-12">
+                  <label style={labelStyle}>Full Name</label>
+                  <input style={inputStyle} value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} required />
+                </div>
+                <div className="col-12">
+                  <label style={labelStyle}>Relationship</label>
+                  <input style={inputStyle} placeholder="e.g. Doctor, Sister, Spouse" value={contactForm.relationship} onChange={e => setContactForm({ ...contactForm, relationship: e.target.value })} required />
+                </div>
+                <div className="col-12">
+                  <label style={labelStyle}>Phone Number</label>
+                  <input style={inputStyle} value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })} required />
+                </div>
+                <div className="col-12">
+                  <label style={labelStyle}>Email Address (Optional)</label>
+                  <input style={inputStyle} type="email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} />
+                </div>
+              </div>
+
+              <div className="mt-5 d-flex gap-2">
+                <button type="button" onClick={() => setShowContactModal(false)} className="btn w-100" style={{ background: '#f2f4ef', color: '#708238', borderRadius: '12px', fontWeight: '700', padding: '12px' }}>Cancel</button>
+                <button type="submit" disabled={loading} className="btn w-100" style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '12px', fontWeight: '700', padding: '12px', border: 'none' }}>
+                  {loading ? <span className="spinner-border spinner-border-sm"></span> : editingContact ? 'Update Contact' : 'Save Contact'}
                 </button>
               </div>
             </form>
