@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Layouts/Guards
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -25,7 +24,6 @@ function App() {
     <ErrorBoundary>
       <Router>
         <Routes>
-          {/* Public Group */}
           <Route element={<PublicRoute />}>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -34,7 +32,6 @@ function App() {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
           </Route>
 
-          {/* Private Group */}
           <Route element={<ProtectedRoute />}>
             <Route path="/home" element={<Home />} />
             <Route path="/profile" element={<Profile />} />

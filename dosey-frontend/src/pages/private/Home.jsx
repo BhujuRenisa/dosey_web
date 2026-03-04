@@ -29,9 +29,6 @@ const Home = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
     const fetchAll = async () => {
       try {
         const [medRes, histRes] = await Promise.all([
@@ -48,7 +45,6 @@ const Home = () => {
   const handleMarkTaken = async (med) => {
     setTakingId(med.id);
     try {
-      const token = localStorage.getItem('token');
       const today = new Date().toISOString().split('T')[0];
       const nowTime = new Date().toTimeString().slice(0, 5);
       const res = await api.post('/history', {
@@ -118,7 +114,8 @@ const Home = () => {
             <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#3a4a1e', lineHeight: 1.2 }}>{value}</div>
             {sub && <div style={{ fontSize: '0.78rem', color: '#8a9a5e', fontWeight: '600' }}>{sub}</div>}
           </div>
-          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${color}18`, display: 'flex', 
+          alignItems: 'center', justifyContent: 'center' }}>
             {icon}
           </div>
         </div>

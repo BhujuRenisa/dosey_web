@@ -17,13 +17,13 @@ const Medicine = sequelize.define('Medicine', {
     type: DataTypes.STRING,
   },
   specificDays: {
-    type: DataTypes.STRING, // comma-separated e.g. "Mon,Wed,Fri"
+    type: DataTypes.STRING, 
   },
   time: {
     type: DataTypes.STRING,
   },
   reminderTimes: {
-    type: DataTypes.TEXT, // comma-separated times e.g. "08:00,14:00,20:00"
+    type: DataTypes.TEXT, 
   },
   colorTag: {
     type: DataTypes.STRING,

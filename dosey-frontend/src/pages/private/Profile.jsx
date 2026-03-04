@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Calendar, Bell, Shield, Monitor, Trash2, Save, LogOut, X, Heart, Droplet, AlertCircle, Edit2, Package, RefreshCw } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Trash2, LogOut, X, Heart, Droplet, AlertCircle, Edit2, Package, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '../../components/Navbar';
 import api from '../../utils/api';
@@ -14,10 +14,6 @@ const Profile = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('Personal'); // 'Personal' or 'Health'
   const [medicines, setMedicines] = useState([]);
-  const [contacts, setContacts] = useState([]);
-  const [editingContact, setEditingContact] = useState(null);
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [contactForm, setContactForm] = useState({ name: '', relationship: '', phone: '', email: '' });
 
   const [form, setForm] = useState({
     firstName: '',
@@ -28,62 +24,47 @@ const Profile = () => {
   });
 
   const [healthForm, setHealthForm] = useState({
-    emergencyContact: '',
     bloodType: '',
     allergies: '',
   });
 
-  const [notifications, setNotifications] = useState({
-    refillAlerts: true,
-  });
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const [profileRes, medRes] = await Promise.all([
+        api.get('/auth/profile'),
+        api.get('/medicines')
+      ]);
+
+      const userData = profileRes.data;
+      setUser(userData);
+      setMedicines(medRes.data);
+
+      const [first, ...rest] = (userData.fullName || '').split(' ');
+      setForm({
+        firstName: first || '',
+        lastName: rest.join(' ') || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        dob: userData.dob || '',
+      });
+
+      setHealthForm({
+        bloodType: userData.bloodType || '',
+        allergies: userData.allergies || '',
+      });
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      if (err.response?.status === 401) navigate('/login');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const [profileRes, medRes, contactRes] = await Promise.all([
-          api.get('/auth/profile'),
-          api.get('/medicines'),
-          api.get('/contacts')
-        ]);
-
-        const userData = profileRes.data;
-        setUser(userData);
-        setMedicines(medRes.data);
-        setContacts(contactRes.data);
-
-        const [first, ...rest] = (userData.fullName || '').split(' ');
-        setForm({
-          firstName: first || '',
-          lastName: rest.join(' ') || '',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          dob: userData.dob || '',
-        });
-
-        setHealthForm({
-          emergencyContact: userData.emergencyContact || '',
-          bloodType: userData.bloodType || '',
-          allergies: userData.allergies || '',
-        });
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        if (err.response?.status === 401) navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAllData();
   }, [navigate]);
 
-  const fetchMedicines = async () => {
-    try {
-      const res = await api.get('/medicines');
-      setMedicines(res.data);
-    } catch (err) {
-      console.error('Error fetching medicines:', err);
-    }
-  };
 
   const handleUpdateProfile = async (e) => {
     if (e) e.preventDefault();
@@ -94,7 +75,6 @@ const Profile = () => {
         phone: form.phone,
         dob: form.dob,
         bloodType: healthForm.bloodType,
-        emergencyContact: healthForm.emergencyContact,
         allergies: healthForm.allergies,
       };
 
@@ -113,39 +93,6 @@ const Profile = () => {
     }
   };
 
-  const handleContactSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      if (editingContact) {
-        const res = await api.put(`/contacts/${editingContact.id}`, contactForm);
-        setContacts(prev => prev.map(c => c.id === editingContact.id ? res.data : c));
-        toast.success('Contact updated!');
-      } else {
-        const res = await api.post('/contacts', contactForm);
-        setContacts(prev => [...prev, res.data]);
-        toast.success('Contact added!');
-      }
-      setShowContactModal(false);
-      setEditingContact(null);
-      setContactForm({ name: '', relationship: '', phone: '', email: '' });
-    } catch (err) {
-      toast.error('Failed to save contact');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteContact = async (id) => {
-    if (!window.confirm('Delete this contact?')) return;
-    try {
-      await api.delete(`/contacts/${id}`);
-      setContacts(prev => prev.filter(c => c.id !== id));
-      toast.success('Contact deleted');
-    } catch (err) {
-      toast.error('Failed to delete contact');
-    }
-  };
 
   const handleDeleteAccount = async () => {
     if (!window.confirm("Are you sure you want to delete your account? This action is permanent and all your data will be lost.")) {
@@ -170,8 +117,28 @@ const Profile = () => {
     }
   };
 
-  const toggleNotification = (key) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleProfilePicUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('profilePic', file);
+
+    setLoading(true);
+    try {
+      const res = await api.put('/auth/profile-pic', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setUser(prev => ({ ...prev, profilePic: res.data.profilePic }));
+      toast.success('Profile picture updated!', {
+        style: { borderRadius: '12px', background: '#708238', color: '#fff' },
+      });
+    } catch (err) {
+      console.error('Error uploading profile pic:', err);
+      toast.error('Failed to upload image');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!user) return null;
@@ -179,9 +146,7 @@ const Profile = () => {
   const sidebarItems = [
     { label: 'Personal Info', icon: User },
     { label: 'Health Profile', icon: Heart },
-    { label: 'Emergency Contacts', icon: Phone },
     { label: 'Refills & Stock', icon: Package },
-    { label: 'Notifications', icon: Bell },
   ];
 
   const inputStyle = {
@@ -207,17 +172,40 @@ const Profile = () => {
     letterSpacing: '0.6px',
   };
 
-  const InfoRow = ({ label, value, icon: Icon }) => (
-    <div className="d-flex align-items-center gap-3 py-3" style={{ borderBottom: '1.2px solid #f0f2eb' }}>
-      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f7f9f3', color: '#708238', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Icon size={18} />
+  const InfoRow = (props) => {
+    const Icon = props.icon;
+    return (
+      <div className="d-flex align-items-center gap-3 py-3" style={{ borderBottom: '1.2px solid #f0f2eb' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#f7f9f3', color: '#708238', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={18} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#8a9a5e', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '2px' }}>{props.label}</div>
+          <div style={{ fontSize: '1rem', fontWeight: '700', color: '#3a4a1e' }}>{props.value || 'Not provided'}</div>
+        </div>
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#8a9a5e', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '2px' }}>{label}</div>
-        <div style={{ fontSize: '1rem', fontWeight: '700', color: '#3a4a1e' }}>{value || 'Not provided'}</div>
-      </div>
-    </div>
-  );
+    );
+  };
+
+  const openModal = (type) => {
+    setModalType(type);
+
+    const [first, ...rest] = (user.fullName || '').split(' ');
+    setForm({
+      firstName: first || '',
+      lastName: rest.join(' ') || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      dob: user.dob || '',
+    });
+
+    setHealthForm({
+      bloodType: user.bloodType || '',
+      allergies: user.allergies || '',
+    });
+
+    setShowModal(true);
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f2f4ef', fontFamily: "'Quicksand', sans-serif", position: 'relative' }}>
@@ -227,7 +215,7 @@ const Profile = () => {
         <div className="d-flex justify-content-between align-items-start mb-4">
           <div>
             <h3 style={{ fontWeight: '800', color: '#3a4a1e', marginBottom: '8px' }}>Settings</h3>
-            <p style={{ color: '#8a9a5e', fontWeight: '500', marginBottom: 0 }}>Manage your personal information, health records, and medication alerts.</p>
+            <p style={{ color: '#8a9a5e', fontWeight: '500', marginBottom: 0 }}>Manage your personal information and health records.</p>
           </div>
           <button onClick={() => {
             localStorage.removeItem('token');
@@ -243,8 +231,59 @@ const Profile = () => {
           <div className="col-12 col-md-4">
             <div className="card border-0 p-3" style={{ borderRadius: '20px', boxShadow: '0 4px 20px rgba(112,130,56,0.1)' }}>
               <div className="d-flex align-items-center gap-3 mb-4 p-2">
-                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#708238', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', fontWeight: '800' }}>
-                  {user.fullName?.[0]}
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#708238',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.4rem',
+                    fontWeight: '800',
+                    color: '#fff',
+                    border: '3px solid #fff',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                  }}>
+                    {user.profilePic ? (
+                      <img
+                        src={`http://localhost:5000/uploads/${user.profilePic}`}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      user.fullName?.[0]
+                    )}
+                  </div>
+                  <label
+                    htmlFor="profile-upload"
+                    style={{
+                      position: 'absolute',
+                      bottom: '-2px',
+                      right: '-2px',
+                      background: '#fff',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                      color: '#708238'
+                    }}
+                  >
+                    <Camera size={14} />
+                    <input
+                      id="profile-upload"
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleProfilePicUpload}
+                    />
+                  </label>
                 </div>
                 <div>
                   <div style={{ fontWeight: '800', color: '#3a4a1e', fontSize: '1.05rem' }}>{user.fullName}</div>
@@ -294,12 +333,10 @@ const Profile = () => {
                   <h5 style={{ fontWeight: '800', color: '#3a4a1e', margin: 0 }}>{activeTab}</h5>
                   {(activeTab === 'Personal Info' || activeTab === 'Health Profile') && (
                     <button
-                      onClick={() => {
-                        setModalType(activeTab === 'Personal Info' ? 'Personal' : 'Health');
-                        setShowModal(true);
-                      }}
+                      onClick={() => openModal(activeTab === 'Personal Info' ? 'Personal' : 'Health')}
                       className="btn btn-sm"
-                      style={{ background: '#f2f4ef', color: '#708238', borderRadius: '10px', fontWeight: '700', padding: '6px 16px', border: '1.5px solid #d5ddc8' }}
+                      style={{ background: '#f2f4ef', color: '#708238', borderRadius: '10px', fontWeight: '700', padding: '6px 16px',
+                         border: '1.5px solid #d5ddc8' }}
                     >
                       <Edit2 size={14} className="me-2" /> Edit
                     </button>
@@ -317,67 +354,11 @@ const Profile = () => {
 
                 {activeTab === 'Health Profile' && (
                   <div className="px-1">
-                    <InfoRow label="Emergency Contact (Legacy)" value={user.emergencyContact || 'Not set'} icon={Phone} />
                     <InfoRow label="Blood Type" value={user.bloodType || 'Not set'} icon={Droplet} />
                     <InfoRow label="Allergies" value={user.allergies || 'None listed'} icon={AlertCircle} />
                   </div>
                 )}
 
-                {activeTab === 'Emergency Contacts' && (
-                  <div className="px-1">
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                      <p style={{ color: '#8a9a5e', fontWeight: '600', fontSize: '0.85rem', margin: 0 }}>Manage your healthcare providers or family contacts.</p>
-                      <button
-                        onClick={() => {
-                          setEditingContact(null);
-                          setContactForm({ name: '', relationship: '', phone: '', email: '' });
-                          setShowContactModal(true);
-                        }}
-                        className="btn btn-sm"
-                        style={{ background: '#708238', color: '#fff', borderRadius: '10px', fontWeight: '700', padding: '6px 16px' }}
-                      >
-                        <Plus size={14} className="me-2" /> Add New
-                      </button>
-                    </div>
-                    {contacts.length > 0 ? (
-                      contacts.map(contact => (
-                        <div key={contact.id} className="p-3 mb-2" style={{ background: '#f7f9f3', borderRadius: '16px', border: '1.2px solid #f0f2eb' }}>
-                          <div className="d-flex justify-content-between align-items-start">
-                            <div>
-                              <div style={{ fontWeight: '800', color: '#3a4a1e', fontSize: '1rem' }}>{contact.name}</div>
-                              <div style={{ color: '#708238', fontWeight: '700', fontSize: '0.8rem', textTransform: 'uppercase' }}>{contact.relationship}</div>
-                              <div className="mt-2" style={{ color: '#4B5320', fontWeight: '600', fontSize: '0.9rem' }}><Phone size={14} className="me-1" /> {contact.phone}</div>
-                              {contact.email && <div style={{ color: '#4B5320', fontWeight: '600', fontSize: '0.9rem' }}><Mail size={14} className="me-1" /> {contact.email}</div>}
-                            </div>
-                            <div className="d-flex gap-2">
-                              <button
-                                onClick={() => {
-                                  setEditingContact(contact);
-                                  setContactForm({ name: contact.name, relationship: contact.relationship, phone: contact.phone, email: contact.email });
-                                  setShowContactModal(true);
-                                }}
-                                style={{ background: 'none', border: 'none', color: '#708238', cursor: 'pointer' }}
-                              >
-                                <Edit2 size={16} />
-                              </button>
-                              <button
-                                onClick={() => deleteContact(contact.id)}
-                                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-4" style={{ background: '#f7f9f3', borderRadius: '16px', border: '1.5px dashed #d5ddc8' }}>
-                        <Phone size={32} style={{ color: '#a3b464', marginBottom: '10px', opacity: 0.6 }} />
-                        <p style={{ color: '#8a9a5e', fontWeight: '600', fontSize: '0.85rem' }}>No contacts added yet.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
 
                 {activeTab === 'Refills & Stock' && (
                   <div className="col-12">
@@ -418,50 +399,6 @@ const Profile = () => {
                   </div>
                 )}
 
-                {activeTab === 'Notifications' && (
-                  <div className="col-12">
-                    <div className="d-flex align-items-center gap-2 mb-3">
-                      <Bell size={18} style={{ color: '#708238' }} />
-                      <h6 style={{ fontWeight: '800', color: '#3a4a1e', margin: 0 }}>Notification Preferences</h6>
-                    </div>
-
-                    {[
-                      { label: 'Refills Needed Warning', key: 'refillAlerts', sub: 'Get notified when your supply is running low.' },
-                    ].map(pref => (
-                      <div key={pref.key} className="d-flex align-items-center justify-content-between py-3" style={{ borderBottom: '1.5px solid #f2f4ef' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '700', color: '#3a4a1e', fontSize: '0.88rem' }}>{pref.label}</div>
-                          <div style={{ color: '#8a9a5e', fontSize: '0.78rem', fontWeight: '600' }}>{pref.sub}</div>
-                        </div>
-                        <div
-                          onClick={() => toggleNotification(pref.key)}
-                          style={{
-                            width: '42px',
-                            height: '24px',
-                            borderRadius: '12px',
-                            background: notifications[pref.key] ? '#708238' : '#d5ddc8',
-                            position: 'relative',
-                            cursor: 'pointer',
-                            transition: '0.3s',
-                          }}
-                        >
-                          <div style={{
-                            width: '18px',
-                            height: '18px',
-                            borderRadius: '50%',
-                            background: '#fff',
-                            position: 'absolute',
-                            top: '3px',
-                            left: notifications[pref.key] ? '21px' : '3px',
-                            transition: '0.3s',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                          }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 <div className="col-12 mt-5">
                   <h6 style={{ fontWeight: '800', color: '#dc2626', marginBottom: '1rem' }}>Danger Zone</h6>
                   <div className="p-3" style={{ background: '#fff0f0', border: '1.5px solid #fecaca', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -485,7 +422,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Part */}
       {showModal && (
         <div style={{
           position: 'fixed',
@@ -543,7 +480,15 @@ const Profile = () => {
                     </div>
                     <div className="col-md-6">
                       <label style={labelStyle}>Phone Number</label>
-                      <input style={inputStyle} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                      <input
+                        style={inputStyle}
+                        value={form.phone}
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setForm({ ...form, phone: val });
+                        }}
+                        placeholder="10 digit number"
+                      />
                     </div>
                     <div className="col-md-6">
                       <label style={labelStyle}>Date of Birth</label>
@@ -552,10 +497,6 @@ const Profile = () => {
                   </>
                 ) : (
                   <>
-                    <div className="col-12">
-                      <label style={labelStyle}>Emergency Contact</label>
-                      <input style={inputStyle} placeholder="Name or Number" value={healthForm.emergencyContact} onChange={e => setHealthForm({ ...healthForm, emergencyContact: e.target.value })} />
-                    </div>
                     <div className="col-12">
                       <label style={labelStyle}>Blood Type</label>
                       <select style={inputStyle} value={healthForm.bloodType} onChange={e => setHealthForm({ ...healthForm, bloodType: e.target.value })}>
@@ -582,67 +523,6 @@ const Profile = () => {
                 <button type="button" onClick={() => setShowModal(false)} className="btn w-100" style={{ background: '#f2f4ef', color: '#708238', borderRadius: '12px', fontWeight: '700', padding: '12px' }}>Cancel</button>
                 <button type="submit" disabled={loading} className="btn w-100" style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '12px', fontWeight: '700', padding: '12px', border: 'none' }}>
                   {loading ? <span className="spinner-border spinner-border-sm"></span> : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Contact Modal */}
-      {showContactModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(58, 74, 30, 0.4)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1001,
-          padding: '20px'
-        }}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '24px',
-            width: '100%',
-            maxWidth: '500px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            overflow: 'hidden',
-          }}>
-            <div className="p-4 d-flex justify-content-between align-items-center" style={{ borderBottom: '1.5px solid #f2f4ef' }}>
-              <h5 style={{ fontWeight: '800', color: '#3a4a1e', margin: 0 }}>{editingContact ? 'Edit Contact' : 'Add New Contact'}</h5>
-              <button onClick={() => setShowContactModal(false)} style={{ background: 'transparent', border: 'none', color: '#8a9a5e' }}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleContactSubmit} className="p-4">
-              <div className="row g-3">
-                <div className="col-12">
-                  <label style={labelStyle}>Full Name</label>
-                  <input style={inputStyle} value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} required />
-                </div>
-                <div className="col-12">
-                  <label style={labelStyle}>Relationship</label>
-                  <input style={inputStyle} placeholder="e.g. Doctor, Sister, Spouse" value={contactForm.relationship} onChange={e => setContactForm({ ...contactForm, relationship: e.target.value })} required />
-                </div>
-                <div className="col-12">
-                  <label style={labelStyle}>Phone Number</label>
-                  <input style={inputStyle} value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })} required />
-                </div>
-                <div className="col-12">
-                  <label style={labelStyle}>Email Address (Optional)</label>
-                  <input style={inputStyle} type="email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} />
-                </div>
-              </div>
-
-              <div className="mt-5 d-flex gap-2">
-                <button type="button" onClick={() => setShowContactModal(false)} className="btn w-100" style={{ background: '#f2f4ef', color: '#708238', borderRadius: '12px', fontWeight: '700', padding: '12px' }}>Cancel</button>
-                <button type="submit" disabled={loading} className="btn w-100" style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '12px', fontWeight: '700', padding: '12px', border: 'none' }}>
-                  {loading ? <span className="spinner-border spinner-border-sm"></span> : editingContact ? 'Update Contact' : 'Save Contact'}
                 </button>
               </div>
             </form>

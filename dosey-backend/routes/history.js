@@ -4,10 +4,8 @@ const MedicineHistory = require('../models/MedicineHistory');
 const Medicine = require('../models/medicine');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// All routes protected
 router.use(authMiddleware);
 
-// GET all history for logged-in user (newest first)
 router.get('/', async (req, res) => {
     try {
         const history = await MedicineHistory.findAll({
@@ -21,12 +19,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST — mark a medicine as taken
+// mark a medicine as taken
 router.post('/', async (req, res) => {
     try {
-        const { medicineName, dosage, takenAt, takenTime, medicineId } = req.body;
-        if (!medicineName || !dosage) {
-            return res.status(400).json({ message: 'Medicine name and dosage are required' });
+        const { medicineName, dosage, frequency, takenAt, takenTime, notes, medicineId } = req.body;
+        if (!medicineName) {
+            return res.status(400).json({ message: 'Medicine name is required' });
         }
 
         const entry = await MedicineHistory.create({
@@ -55,7 +53,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT — edit a history entry
+// edit a history entry
 router.put('/:id', async (req, res) => {
     try {
         const entry = await MedicineHistory.findOne({
@@ -72,7 +70,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE — remove a history entry
+// remove a history entry
 router.delete('/:id', async (req, res) => {
     try {
         const entry = await MedicineHistory.findOne({

@@ -10,7 +10,7 @@ exports.addMedicine = async (req, res) => {
       dosage,
       frequency,
       time,
-      userId: req.user.id, // req.user comes from authMiddleware
+      userId: req.user.id, 
     });
     
     res.status(201).json(medicine);

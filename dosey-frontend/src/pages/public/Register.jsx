@@ -8,7 +8,7 @@ const Register = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [loading, setLoading] = useState(false) // Added loading state
+  const [loading, setLoading] = useState(false) 
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -23,11 +23,10 @@ const Register = () => {
     formData.password === formData.confirmPassword &&
     formData.password.length > 0
 
-  // ✅ Added 'async' keyword here
   const handleRegister = async (e) => {
     e.preventDefault()
 
-    // 1. Validation
+    //  Validation
     if (!formData.fullName || !formData.email || !formData.password) {
       toast.error('Please fill in all fields')
       return
@@ -43,10 +42,10 @@ const Register = () => {
       return
     }
 
-    setLoading(true) // Start loading
+    setLoading(true) 
 
     try {
-      // 2. Call the Backend
+      // Call the Backend
       const res = await api.post('/auth/register', {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
@@ -54,7 +53,7 @@ const Register = () => {
       });
 
       if (res.status === 201) {
-        // 3. Success
+        // Success
         toast.success('Welcome to DoseyCare! Redirecting to login...', {
           duration: 2000,
         });
@@ -63,7 +62,6 @@ const Register = () => {
         toast.error(res.data.message || 'Registration failed');
       }
     } catch (error) {
-      // ✅ Added missing catch block
       console.error("Register Error:", error);
       const msg = error.response?.data?.message || 'Server connection failed. Is the backend running?';
       toast.error(msg);
@@ -79,7 +77,7 @@ const Register = () => {
       <div className="container">
         <div className="row shadow-lg rounded overflow-hidden bg-white mx-auto" style={{ maxWidth: '900px' }}>
 
-          {/* Left Branding */}
+          {/* */}
           <div className="col-md-5 bg-primary text-white p-5 d-none d-md-flex flex-column justify-content-center text-center">
             <h2 className="fw-bold mb-3">DoseyCare</h2>
             <p className="lead">Join the family and manage your health with ease.</p>

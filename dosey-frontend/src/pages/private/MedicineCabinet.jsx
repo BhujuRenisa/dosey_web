@@ -110,7 +110,7 @@ const MedicineCabinet = () => {
 
     const getMedColor = (med) => med.colorTag || '#708238';
 
-    // Today's schedule - sort by time
+    // Today's schedule (sort by time)
     const todaySchedule = [...medicines].filter(m => m.time).sort((a, b) => a.time.localeCompare(b.time));
 
     if (!user) return null;
@@ -121,7 +121,6 @@ const MedicineCabinet = () => {
 
             <div className="container-lg py-4" style={{ maxWidth: '1100px' }}>
 
-                {/* Header */}
                 <div className="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
                     <div>
                         <h3 style={{ fontWeight: '800', color: '#3a4a1e', marginBottom: '2px' }}>My Medicine Cabinet</h3>
@@ -129,20 +128,22 @@ const MedicineCabinet = () => {
                     </div>
                     <button
                         onClick={() => navigate('/add-medication')}
-                        style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', border: 'none', borderRadius: '12px', padding: '10px 20px', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(112,130,56,0.35)', cursor: 'pointer', fontFamily: "'Quicksand', sans-serif" }}
+                        style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff',
+                             border: 'none', borderRadius: '12px', padding: '10px 20px', fontWeight: '700', fontSize: '0.9rem', display: 'flex', 
+                             alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(112,130,56,0.35)', cursor: 'pointer', fontFamily: "'Quicksand', sans-serif" }}
                     >
                         <Plus size={16} /> Add New Medicine
                     </button>
                 </div>
 
-                {/* Stats chips */}
                 <div className="d-flex gap-3 mb-4 flex-wrap">
                     {[
                         { label: 'Active Meds', value: medicines.length, color: '#708238', bg: '#e9edc9' },
                         { label: 'Active Mode', value: `${adherence}%`, color: '#2563eb', bg: '#dbeafe', sub: '↑ Adherence' },
                         { label: 'Refills Needed', value: medicines.filter(m => (m.stock || 0) <= (m.refillThreshold || 5)).length, color: '#e08c2f', bg: '#fef3c7' },
                     ].map(stat => (
-                        <div key={stat.label} style={{ background: '#fff', borderRadius: '14px', padding: '1rem 1.5rem', boxShadow: '0 3px 14px rgba(112,130,56,0.08)', minWidth: '150px' }}>
+                        <div key={stat.label} style={{ background: '#fff', borderRadius: '14px', padding: '1rem 1.5rem', 
+                        boxShadow: '0 3px 14px rgba(112,130,56,0.08)', minWidth: '150px' }}>
                             <div style={{ fontSize: '0.72rem', color: '#8a9a5e', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: '800', color: stat.color, lineHeight: 1.2 }}>{stat.value}</div>
                             {stat.sub && <div style={{ fontSize: '0.75rem', color: stat.color, fontWeight: '600' }}>{stat.sub}</div>}
@@ -165,7 +166,9 @@ const MedicineCabinet = () => {
                                 <div className="d-flex gap-2 align-items-center flex-wrap">
                                     {['all', 'daily', 'as-needed'].map(f => (
                                         <button key={f} onClick={() => setFilter(f)}
-                                            style={{ background: filter === f ? '#708238' : '#f2f4ef', color: filter === f ? '#fff' : '#708238', border: 'none', borderRadius: '8px', padding: '4px 12px', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer', fontFamily: "'Quicksand', sans-serif" }}
+                                            style={{ background: filter === f ? '#708238' : '#f2f4ef', color: filter === f ? '#fff' : '#708238',
+                                                 border: 'none', borderRadius: '8px', padding: '4px 12px', fontWeight: '700', fontSize: '0.78rem', 
+                                                 cursor: 'pointer', fontFamily: "'Quicksand', sans-serif" }}
                                         >
                                             {f === 'all' ? 'All' : f === 'daily' ? 'Daily' : 'As Needed'}
                                         </button>
@@ -176,7 +179,8 @@ const MedicineCabinet = () => {
                                             value={search}
                                             onChange={e => setSearch(e.target.value)}
                                             placeholder="Search meds..."
-                                            style={{ paddingLeft: '30px', border: '1.5px solid #d5ddc8', borderRadius: '10px', fontSize: '0.83rem', fontFamily: "'Quicksand', sans-serif", fontWeight: '600', background: '#fafaf7', outline: 'none', width: '150px' }}
+                                            style={{ paddingLeft: '30px', border: '1.5px solid #d5ddc8', borderRadius: '10px', fontSize: '0.83rem', 
+                                                fontFamily: "'Quicksand', sans-serif", fontWeight: '600', background: '#fafaf7', outline: 'none', width: '150px' }}
                                         />
                                     </div>
                                 </div>
@@ -192,8 +196,10 @@ const MedicineCabinet = () => {
                                         const color = getMedColor(med);
                                         const taken = takenTodayIds.has(med.id);
                                         return (
-                                            <div key={med.id} style={{ background: taken ? '#f0fdf4' : '#f7f9f3', borderRadius: '14px', padding: '1rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: taken ? '1.5px solid #a3e4b4' : '1.5px solid transparent' }}>
-                                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `2px solid ${color}40` }}>
+                                            <div key={med.id} style={{ background: taken ? '#f0fdf4' : '#f7f9f3', borderRadius: '14px', padding: '1rem',
+                                             marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: taken ? '1.5px solid #a3e4b4' : '1.5px solid transparent' }}>
+                                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${color}20`, display: 'flex',
+                                                 alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `2px solid ${color}40` }}>
                                                     <svg width="20" height="20" fill={color} viewBox="0 0 20 20">{SHAPE_SVG[med.shape || 'circle']}</svg>
                                                 </div>
                                                 <div style={{ flex: 1 }}>
@@ -203,17 +209,20 @@ const MedicineCabinet = () => {
                                                     </div>
                                                 </div>
                                                 <div className="d-flex gap-1">
-                                                    {!taken && (
-                                                        <button onClick={() => handleMarkTaken(med)} disabled={takingId === med.id} style={{ background: '#708238', color: '#fff', border: 'none', borderRadius: '8px', padding: '5px 12px', fontWeight: '700', fontSize: '0.78rem' }}>Take</button>
-                                                    )}
-                                                    <button onClick={() => navigate(`/edit-medication/${med.id}`)} style={{ background: '#e9edc9', color: '#708238', border: 'none', borderRadius: '8px', width: '32px', height: '32px' }}><Pencil size={13} className="m-auto" /></button>
-                                                    <button onClick={() => setConfirmDeleteId(med.id)} style={{ background: '#fff0f0', color: '#dc2626', border: 'none', borderRadius: '8px', width: '32px', height: '32px' }}><Trash2 size={13} className="m-auto" /></button>
+                                                    <button onClick={() => navigate(`/edit-medication/${med.id}`)} style={{ background: '#e9edc9', 
+                                                        color: '#708238', border: 'none', borderRadius: '8px', width: '32px', height: '32px' }}><Pencil size={13} className="m-auto" title="Edit" /></button>
+                                                    <button onClick={() => setConfirmDeleteId(med.id)} style={{ background: '#fff0f0', color: '#dc2626',
+                                                         border: 'none', borderRadius: '8px', width: '32px', height: '32px' }}><Trash2 size={13} className="m-auto" title="Delete" /></button>
                                                 </div>
                                                 {
                                                     confirmDeleteId === med.id && (
                                                         <div className="ms-2 d-flex gap-1">
-                                                            <button onClick={() => handleDelete(med.id)} style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '0.7rem', padding: '4px 8px' }}>Confirm</button>
-                                                            <button onClick={() => setConfirmDeleteId(null)} style={{ background: '#ccc', border: 'none', borderRadius: '8px', fontSize: '0.7rem', padding: '4px 8px' }}>No</button>
+                                                            <button onClick={() => handleDelete(med.id)} style={{ background: '#dc2626', color: '#fff', 
+                                                                border: 'none', borderRadius: '8px', fontSize: '0.7rem', padding: '4px 8px' }}>
+                                                                {deletingId === med.id ? <span className="spinner-border spinner-border-sm" /> : 'Confirm'}
+                                                            </button>
+                                                            <button onClick={() => setConfirmDeleteId(null)} style={{ background: '#ccc', border: 'none',
+                                                                 borderRadius: '8px', fontSize: '0.7rem', padding: '4px 8px' }}>No</button>
                                                         </div>
                                                     )
                                                 }

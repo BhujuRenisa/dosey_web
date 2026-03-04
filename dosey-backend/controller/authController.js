@@ -70,16 +70,16 @@ exports.login = async (req, res) => {
 // DELETE ACCOUNT
 exports.deleteAccount = async (req, res) => {
   try {
-    const userId = req.user.id; // assumed set by authMiddleware
+    const userId = req.user.id; 
 
-    // 1. Delete user's medications
+    // Delete user's medications
     const Medicine = require('../models/medicine');
     const MedicineHistory = require('../models/MedicineHistory');
 
     await MedicineHistory.destroy({ where: { userId } });
     await Medicine.destroy({ where: { userId } });
 
-    // 2. Delete user
+    // Delete user
     await User.destroy({ where: { id: userId } });
 
     res.json({ message: 'Account deleted successfully' });
@@ -106,13 +106,17 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { fullName, phone, dob, bloodType, emergencyContact, allergies } = req.body;
+    console.log('[UPDATE_PROFILE] Incoming body:', req.body);
+
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const processedDob = (dob === '' || dob === undefined) ? null : dob;
 
     await user.update({
       fullName: fullName || user.fullName,
       phone: phone !== undefined ? phone : user.phone,
-      dob: dob !== undefined ? dob : user.dob,
+      dob: processedDob,
       bloodType: bloodType !== undefined ? bloodType : user.bloodType,
       emergencyContact: emergencyContact !== undefined ? emergencyContact : user.emergencyContact,
       allergies: allergies !== undefined ? allergies : user.allergies,
@@ -132,8 +136,8 @@ exports.updateProfile = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error updating profile' });
+    console.error('[UPDATE_PROFILE] ERROR:', err);
+    res.status(500).json({ message: 'Error updating profile', error: err.message });
   }
 };
 
@@ -191,5 +195,33 @@ exports.resetPassword = async (req, res) => {
     res.json({ message: 'Password has been reset successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Error resetting password' });
+  }
+};
+
+// UPDATE PROFILE PIC
+exports.updateProfilePic = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await user.update({ profilePic: req.file.filename });
+
+    res.json({
+      message: 'Profile picture updated',
+      profilePic: req.file.filename,
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePic: user.profilePic
+      }
+    });
+  } catch (err) {
+    console.error('[UPDATE_PROFILE_PIC] ERROR:', err);
+    res.status(500).json({ message: 'Error updating profile picture' });
   }
 };

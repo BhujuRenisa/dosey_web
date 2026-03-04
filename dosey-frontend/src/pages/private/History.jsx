@@ -15,7 +15,6 @@ const HistoryPage = () => {
     const [editForm, setEditForm] = useState({});
     const [savingId, setSavingId] = useState(null);
 
-    const token = localStorage.getItem('token');
 
     const fetchHistory = async () => {
         setLoading(true);
@@ -36,7 +35,7 @@ const HistoryPage = () => {
         fetchHistory();
     }, [navigate]);
 
-    // === DELETE ===
+    //  DELETE 
     const handleDelete = async (id) => {
         setDeletingId(id);
         try {
@@ -53,7 +52,7 @@ const HistoryPage = () => {
         finally { setDeletingId(null); setConfirmDeleteId(null); }
     };
 
-    // === EDIT ===
+    //  EDIT
     const startEdit = (entry) => {
         setEditingId(entry.id);
         setEditForm({
@@ -131,7 +130,8 @@ const HistoryPage = () => {
                         onClick={fetchHistory}
                         className="btn btn-sm rounded-circle fw-bold"
                         title="Refresh"
-                        style={{ background: '#e9edc9', color: '#4B5320', border: 'none', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ background: '#e9edc9', color: '#4B5320', border: 'none', width: '36px', height: '36px', display: 'flex', 
+                            alignItems: 'center', justifyContent: 'center' }}
                     >
                         <RefreshCw size={15} />
                     </button>
@@ -147,7 +147,6 @@ const HistoryPage = () => {
 
             <div className="container pt-4" style={{ maxWidth: '700px' }}>
 
-                {/* Header */}
                 <div className="mb-4">
                     <h5 className="fw-bold mb-0" style={{ color: '#3a4a1e', fontSize: '1.25rem' }}>
                         <History size={20} className="me-2" style={{ color: '#708238' }} />
@@ -158,7 +157,6 @@ const HistoryPage = () => {
                     </small>
                 </div>
 
-                {/* Loading */}
                 {loading && (
                     <div className="text-center py-5">
                         <div className="spinner-border" style={{ color: '#708238', width: '2.5rem', height: '2.5rem' }} role="status" />
@@ -166,7 +164,6 @@ const HistoryPage = () => {
                     </div>
                 )}
 
-                {/* Empty state */}
                 {!loading && history.length === 0 && (
                     <div className="text-center py-5" style={{ background: '#fff', borderRadius: '20px', border: '2px dashed #d5ddc8', color: '#8a9a5e' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📋</div>
@@ -184,7 +181,6 @@ const HistoryPage = () => {
                 {/* Grouped history */}
                 {!loading && Object.keys(grouped).map((date) => (
                     <div key={date} className="mb-4">
-                        {/* Date header */}
                         <div className="d-flex align-items-center gap-2 mb-2">
                             <span className="fw-bold" style={{ color: '#4B5320', fontSize: '0.9rem' }}>
                                 📅 {formatDate(date)}
@@ -202,11 +198,12 @@ const HistoryPage = () => {
                                     className="card border-0"
                                     style={{ borderRadius: '16px', boxShadow: '0 3px 16px rgba(112,130,56,0.08)', position: 'relative', overflow: 'visible' }}
                                 >
-                                    {/* Left accent */}
-                                    <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', width: '4px', height: '55%', background: 'linear-gradient(180deg, #708238, #a3b464)', borderRadius: '0 4px 4px 0' }} />
+                                    <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', width: '4px', height: '55%', 
+                                        background: 'linear-gradient(180deg, #708238, #a3b464)', borderRadius: '0 4px 4px 0' }} />
 
                                     {editingId === entry.id ? (
-                                        /* ===== EDIT MODE ===== */
+
+                                        /* EDIT MODE */
                                         <div className="card-body px-4 py-3">
                                             <div className="row g-2 mb-2">
                                                 <div className="col-12 col-sm-6">
@@ -260,7 +257,8 @@ const HistoryPage = () => {
                                                     className="btn btn-sm fw-bold"
                                                     onClick={() => handleSaveEdit(entry.id)}
                                                     disabled={savingId === entry.id}
-                                                    style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', border: 'none', borderRadius: '10px', padding: '6px 16px', fontSize: '0.83rem' }}
+                                                    style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', border: 'none', 
+                                                        borderRadius: '10px', padding: '6px 16px', fontSize: '0.83rem' }}
                                                 >
                                                     {savingId === entry.id
                                                         ? <><span className="spinner-border spinner-border-sm me-1" />Saving...</>
@@ -269,17 +267,19 @@ const HistoryPage = () => {
                                                 <button
                                                     className="btn btn-sm fw-bold"
                                                     onClick={cancelEdit}
-                                                    style={{ background: '#f2f4ef', color: '#708238', border: 'none', borderRadius: '10px', padding: '6px 16px', fontSize: '0.83rem' }}
+                                                    style={{ background: '#f2f4ef', color: '#708238', border: 'none', borderRadius: '10px', 
+                                                        padding: '6px 16px', fontSize: '0.83rem' }}
                                                 >
                                                     <X size={13} className="me-1" />Cancel
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
-                                        /* ===== VIEW MODE ===== */
+                                        /*VIEW MODE  */
                                         <div className="card-body px-4 py-3 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                             <div className="d-flex align-items-center gap-3">
-                                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#e9edc9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#e9edc9', display: 'flex', alignItems: 'center', 
+                                                    justifyContent: 'center', flexShrink: 0 }}>
                                                     <Pill size={20} style={{ color: '#708238' }} />
                                                 </div>
                                                 <div>
@@ -312,7 +312,8 @@ const HistoryPage = () => {
                                                     className="btn btn-sm"
                                                     title="Edit"
                                                     onClick={() => startEdit(entry)}
-                                                    style={{ background: '#e9edc9', color: '#708238', border: 'none', borderRadius: '9px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    style={{ background: '#e9edc9', color: '#708238', border: 'none', borderRadius: '9px', 
+                                                        width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                                 >
                                                     <Pencil size={14} />
                                                 </button>
@@ -341,7 +342,8 @@ const HistoryPage = () => {
                                                         className="btn btn-sm"
                                                         title="Delete"
                                                         onClick={() => setConfirmDeleteId(entry.id)}
-                                                        style={{ background: '#fff0f0', color: '#dc2626', border: 'none', borderRadius: '9px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                        style={{ background: '#fff0f0', color: '#dc2626', border: 'none', borderRadius: '9px', width: '32px',
+                                                             height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>

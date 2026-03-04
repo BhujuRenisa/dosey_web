@@ -4,7 +4,6 @@ $primary: #708238;
 
 @import "bootstrap/scss/bootstrap";
 
-/* Add these to your main CSS file for that "Interactive" feel */
 .card { transition: all 0.3s ease; }
 .card:hover { transform: translateY(-5px); cursor: pointer; }
 .btn:active { transform: scale(0.95); }

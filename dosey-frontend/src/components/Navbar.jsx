@@ -3,15 +3,15 @@ import { Pill, LayoutDashboard, BookOpen, History, User, Plus, LogOut } from 'lu
 import toast from 'react-hot-toast';
 import '../pages/private/Home.css';
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
         toast.success('Logged out');
-        navigate('/login');
+        navigate('/');
     };
 
     const navLinks = [
@@ -46,14 +46,14 @@ const Navbar = ({ user }) => {
                 Dosey
             </span>
 
-            {/* Nav links — center */}
             <div className="d-none d-md-flex align-items-center gap-1 mx-auto">
-                {navLinks.map(({ path, label, icon: Icon }) => {
-                    const active = location.pathname === path;
+                {navLinks.map((link) => {
+                    const active = location.pathname === link.path;
+                    const IconComp = link.icon;
                     return (
                         <button
-                            key={path}
-                            onClick={() => navigate(path)}
+                            key={link.path}
+                            onClick={() => navigate(link.path)}
                             style={{
                                 background: active ? 'rgba(255,255,255,0.2)' : 'transparent',
                                 color: '#fff',
@@ -72,8 +72,8 @@ const Navbar = ({ user }) => {
                             onMouseEnter={e => !active && (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
                             onMouseLeave={e => !active && (e.currentTarget.style.background = 'transparent')}
                         >
-                            <Icon size={15} />
-                            {label}
+                            <IconComp size={15} />
+                            {link.label}
                         </button>
                     );
                 })}

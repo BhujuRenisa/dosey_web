@@ -21,12 +21,12 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <header className="py-5 py-md-5 overflow-hidden">
         <div className="container py-5">
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
-              <span className="badge mb-3 px-3 py-2" style={{ background: '#f2f4ef', color: '#708238', borderRadius: '30px', fontWeight: '700', fontSize: '0.85rem' }}>
+              <span className="badge mb-3 px-3 py-2" style={{ background: '#f2f4ef', color: '#708238', 
+                borderRadius: '30px', fontWeight: '700', fontSize: '0.85rem' }}>
                 Your Health, Simplified
               </span>
               <h1 className="display-4 fw-bold mb-4" style={{ color: '#3a4a1e', lineHeight: '1.2' }}>
@@ -36,19 +36,24 @@ const Landing = () => {
                 Never miss a dose again. DoseyCare tracks your medications, sends smart reminders, and keeps your health records safe and organized.
               </p>
               <div className="d-flex flex-wrap gap-3">
-                <Link to="/register" className="btn btn-lg px-4 py-3 fw-bold shadow-sm" style={{ background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '16px' }}>
+                <Link to="/register" className="btn btn-lg px-4 py-3 fw-bold shadow-sm" style={{ 
+                  background: 'linear-gradient(135deg, #708238, #4B5320)', color: '#fff', borderRadius: '16px' }}>
                   Start Your Journey <ArrowRight size={20} className="ms-2" />
                 </Link>
               </div>
             </div>
             <div className="col-lg-6 position-relative">
               <div className="position-relative z-1">
-                <div className="card border-0 shadow-lg p-3" style={{ borderRadius: '30px', background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
-                  <img src="/logo.png" alt="App Preview" className="img-fluid rounded-4 shadow-sm" style={{ maxHeight: '450px', objectFit: 'contain' }} />
+                <div className="card border-0 shadow-lg p-3" style={{ borderRadius: '30px', 
+                  background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
+                  <img src="/logo.png" alt="App Preview" className="img-fluid rounded-4 shadow-sm"
+                   style={{ maxHeight: '450px', objectFit: 'contain' }} />
                 </div>
               </div>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: '#70823820', borderRadius: '50%', filter: 'blur(40px)', zIndex: 0 }} />
-              <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '200px', height: '200px', background: '#a3b46420', borderRadius: '50%', filter: 'blur(50px)', zIndex: 0 }} />
+              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', 
+                background: '#70823820', borderRadius: '50%', filter: 'blur(40px)', zIndex: 0 }} />
+              <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '200px', height: '200px', 
+                background: '#a3b46420', borderRadius: '50%', filter: 'blur(50px)', zIndex: 0 }} />
             </div>
           </div>
         </div>
@@ -68,7 +73,8 @@ const Landing = () => {
             ].map((feature, idx) => (
               <div key={idx} className="col-md-3">
                 <div className="card h-100 border-0 p-4 shadow-sm hover-up" style={{ borderRadius: '24px', transition: '0.3s' }}>
-                  <div className="mb-4 mx-auto" style={{ width: '60px', height: '60px', borderRadius: '18px', background: `${feature.color}15`, color: feature.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="mb-4 mx-auto" style={{ width: '60px', height: '60px', borderRadius: '18px',
+                     background: `${feature.color}15`, color: feature.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <feature.icon size={28} />
                   </div>
                   <h5 className="fw-bold mb-3">{feature.title}</h5>
@@ -80,7 +86,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* How it Works */}
       <section className="py-5">
         <div className="container py-5">
           <div className="row align-items-center g-5">

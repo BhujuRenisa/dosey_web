@@ -105,9 +105,12 @@ const AddMedication = () => {
     } finally { setLoading(false); }
   };
 
-  const inputStyle = { border: '1.5px solid #d5ddc8', borderRadius: '10px', padding: '8px 12px', fontSize: '0.9rem', fontFamily: "'Quicksand', sans-serif", fontWeight: '600', background: '#fafaf7', outline: 'none', width: '100%' };
-  const labelStyle = { fontSize: '0.82rem', fontWeight: '700', color: '#4B5320', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' };
-  const sectionStyle = { background: '#fff', borderRadius: '16px', padding: '1.5rem', marginBottom: '1.2rem', boxShadow: '0 2px 12px rgba(112,130,56,0.08)' };
+  const inputStyle = { border: '1.5px solid #d5ddc8', borderRadius: '10px', padding: '8px 12px', 
+    fontSize: '0.9rem', fontFamily: "'Quicksand', sans-serif", fontWeight: '600', background: '#fafaf7', outline: 'none', width: '100%' };
+  const labelStyle = { fontSize: '0.82rem', fontWeight: '700', color: '#4B5320', display: 'block', 
+    marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' };
+  const sectionStyle = { background: '#fff', borderRadius: '16px', padding: '1.5rem', 
+    marginBottom: '1.2rem', boxShadow: '0 2px 12px rgba(112,130,56,0.08)' };
 
   if (fetchingData) return (
     <div style={{ minHeight: '100vh', background: '#f2f4ef', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Quicksand', sans-serif" }}>
@@ -126,7 +129,8 @@ const AddMedication = () => {
 
       <div className="container py-4" style={{ maxWidth: '680px' }}>
         {/* Breadcrumb */}
-        <button onClick={() => navigate('/medicines')} style={{ background: 'none', border: 'none', color: '#708238', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '1rem', fontFamily: "'Quicksand', sans-serif", padding: 0 }}>
+        <button onClick={() => navigate('/medicines')} style={{ background: 'none', border: 'none', 
+          color: '#708238', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '1rem', fontFamily: "'Quicksand', sans-serif", padding: 0 }}>
           <ArrowLeft size={15} /> Back to Dashboard
         </button>
 
@@ -138,14 +142,17 @@ const AddMedication = () => {
         </p>
 
         {/* Alerts */}
-        {error && <div style={{ background: '#fff5f5', border: '1.5px solid #fca5a5', borderRadius: '12px', padding: '10px 16px', color: '#b91c1c', fontWeight: '600', marginBottom: '1rem', fontSize: '0.88rem' }}>⚠️ {error}</div>}
-        {success && <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '10px 16px', color: '#15803d', fontWeight: '600', marginBottom: '1rem', fontSize: '0.88rem' }}>✅ {success}</div>}
+        {error && <div style={{ background: '#fff5f5', border: '1.5px solid #fca5a5', borderRadius: '12px', 
+          padding: '10px 16px', color: '#b91c1c', fontWeight: '600', marginBottom: '1rem', fontSize: '0.88rem' }}>error {error}</div>}
+        {success && <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px',
+           padding: '10px 16px', color: '#15803d', fontWeight: '600', marginBottom: '1rem', fontSize: '0.88rem' }}> sucess{success}</div>}
 
         <form onSubmit={handleSubmit}>
           {/* Medicine Name */}
           <div style={sectionStyle}>
             <label style={labelStyle}>Medicine Name</label>
-            <input style={inputStyle} name="name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Ibuprofen, Vitamin D" required />
+            <input style={inputStyle} name="name" value={form.name} onChange={e => setForm(
+              { ...form, name: e.target.value })} placeholder="e.g. Ibuprofen, Vitamin D" required />
           </div>
 
           {/* Dosage + Unit */}
@@ -157,9 +164,16 @@ const AddMedication = () => {
               </div>
               <div className="col-5">
                 <label style={labelStyle}>Unit</label>
-                <select style={inputStyle} value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}>
-                  {UNITS.map(u => <option key={u}>{u}</option>)}
-                </select>
+                <input
+                  list="unit-options"
+                  style={inputStyle}
+                  value={form.unit}
+                  onChange={e => setForm({ ...form, unit: e.target.value })}
+                  placeholder="e.g. mg"
+                />
+                <datalist id="unit-options">
+                  {UNITS.map(u => <option key={u} value={u} />)}
+                </datalist>
               </div>
             </div>
           </div>
@@ -250,11 +264,23 @@ const AddMedication = () => {
             <div className="row g-3">
               <div className="col-6">
                 <label style={{ ...labelStyle, textTransform: 'none', fontSize: '0.78rem', marginBottom: '8px' }}>Current Stock (Units)</label>
-                <input type="number" style={inputStyle} value={form.stock} onChange={e => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} placeholder="e.g. 30" />
+                <input
+                  type="number"
+                  style={inputStyle}
+                  value={form.stock}
+                  onChange={e => setForm({ ...form, stock: parseInt(e.target.value) || 0 })}
+                  placeholder="Enter amount"
+                />
               </div>
               <div className="col-6">
                 <label style={{ ...labelStyle, textTransform: 'none', fontSize: '0.78rem', marginBottom: '8px' }}>Refill Alert Threshold</label>
-                <input type="number" style={inputStyle} value={form.refillThreshold} onChange={e => setForm({ ...form, refillThreshold: parseInt(e.target.value) || 0 })} placeholder="e.g. 5" />
+                <input
+                  type="number"
+                  style={inputStyle}
+                  value={form.refillThreshold}
+                  onChange={e => setForm({ ...form, refillThreshold: parseInt(e.target.value) || 0 })}
+                  placeholder="Enter threshold"
+                />
               </div>
             </div>
           </div>
