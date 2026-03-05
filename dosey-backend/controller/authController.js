@@ -157,7 +157,6 @@ exports.forgotPassword = async (req, res) => {
       resetPasswordExpires: expires
     });
 
-    // In a real app, send an email. Here we return the token/link for simulation.
     const resetUrl = `http://localhost:5173/reset-password/${token}`;
     res.json({
       message: 'Reset link generated (Simulated)',
